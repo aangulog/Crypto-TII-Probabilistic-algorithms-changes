@@ -89,16 +89,16 @@ Let us see how this two methods compare in performance
 
 |  Number of variables   | Early abort (seconds) | No early abort (seconds )| 
 |------------------------| --------------------- | -------------------------|
-|100|0.006|0.2|
-|200|0.04|1.6|
-|300|0.1|5.5|
-|400|0.3|14.1|
-|500|0.7|30.4|
-|600|1.4|59.3|
-|700|2.6|109.8|
-|800|4.4|190.3|
-|900|7.0|301.5|
-|1000|11.1|452.7|
+|100|0.006|0.2| x33.3
+|200|0.04|1.6| x40
+|300|0.1|5.5| x55
+|400|0.3|14.1| x47
+|500|0.7|30.4| x43.4
+|600|1.4|59.3| x42.4
+|700|2.6|109.8| x42.2
+|800|4.4|190.3| x43.3
+|900|7.0|301.5| x43.1
+|1000|11.1|452.7| x40,8
 
 The early abort implementation makes an optimization of about x43. And they, in fact, provide the same lambda (tested up to 530 variables) as we can see in the next graph:
 
@@ -171,3 +171,15 @@ Our strategy will be: insted of starting at $\dfrac{1}{n}$, we will start at a $
 ![inverse_early_abort](https://github.com/aangulog/Crypto-TII-Probabilistic-algorithms-changes/assets/101427877/ec3d4c17-7be8-4365-829d-b43ddd27e001)
 
 We can see how for large values of $n$ this implementation cuts out a lot of unnecesary calculations, since our value is much closer to the opitmal lambda than to 0. Just to be safe we still calculate if our optimal lambda is above or below this line. But the long term behaviour hints us that this value is always lower.
+
+Finally, let us see how this new implementation changes the calculation time.
+
+|  Number of variables   | Early abort starting from the asymptotic lambda (seconds ) | Early abort starting form 0 (seconds) | 
+|------------------------| --------------------- | -------------------------|
+|600|0.5|1.4| x2.8
+|800|1.1|4.4| x4
+|1000|2.6|11.1| x4.3
+|1200|5.4|26.2| x4.9
+|1500|12.4|71.4| x5.7
+|2000|36.9|266.8| x7.2
+|3000|178.1|1725.1| x9.6
