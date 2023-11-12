@@ -43,8 +43,9 @@ Checking the old code for computing the optimal lambda
 
 ```Python
     def λ(self):
-        n, m = self._n, self._m
-        min_complexity = math.inf
+        n, m = self.nvariables_reduced(), self.npolynomials_reduced()
+        k = self._k # Does not do anything
+        min_complexity = Infinity
         optimal_λ = None
 
         for l in range(1, min(m, n - 1)):
@@ -64,8 +65,8 @@ We can see the problem with this naïve approach of cheacking all possible lambd
 ```Python
     def λ_early_abort(self):
 
-        n, m = self._n, self._m
-        min_complexity = math.inf
+        n, m = self.nvariables_reduced(), self.npolynomials_reduced()
+        min_complexity = Infinity
         optimal_λ = None
 
         for l in range(1, min(m, n - 1)):
@@ -107,4 +108,63 @@ Thanks to the unimodality of the function, early abort gives us an optimal upper
 
 Remember that we are starting this search of lambda at $\dfrac{1}{n}$, where $n$ is the number of variables, we would like to find a lower bound of searching, letting us start further away from 0.
 
-Our previous graph already can give us a hint of a naïve lower bound, we can see that the function of optimal lambda resembles an increasing function. If it were in fact an increasing function this would mean that for $n>m$, $\lambda_n>\lambda_m$. Althougt, as we already mentioned, our function is not an increasing one, we can see that there are some key local minima in it that can helps us. 
+[[BKW19](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ICALP.2019.26)] demonstrated that the function $T(n,m)$ (for us the method _T) is exponentially asymptotic to $2^{0.803225n}$, this value is achieved when $\lambda =  0.196774680497$, we can start from this value and work towards 0, insted of starting from 0 and works toward the optimimum. But why are we able to do this? We are in fact studying the optimization of the __time_complexity_ method.
+
+```Python
+def _time_complexity_(self, λ):
+
+    n, m = self.nvariables_reduced(), self.npolynomials_reduced()
+    k = self._k
+
+    return 8*k * n * sum([Bjorklund._T(n - i, m + k + 2, λ) for i in range(1, n)])
+```
+
+This method relies in calculating the value of $T(n,m)$ for all $n\in[1,2,...,n-1]$, and the exponential nature of _T tells us that the higher values of $n$ will be the ones that impact the most this method, therefore is reasonable to assume that a $\lambda$ that optimizes the values of $T(n,m)$ for higher n's is also going to be the $\lambda$ that optimizes __time_complexity_.
+Our strategy will be: insted of starting at $\dfrac{1}{n}$, we will start at a $\dfrac{l}{n}$ that is closest to the optimal value of lambda. Then we will check if we are in the increasing or decreasing part of the function. If we are in the increasing part we will start working towards 0, and thanks to the unimodality find the minimum. In the other hand if we are in the decreasing part our current code of early abort will work fine.
+
+```Python
+
+    def λearly_abort(self):
+        
+        n, m = self.nvariables_reduced(), self.npolynomials_reduced()
+        min_complexity = Infinity
+        optimal_λ = None
+        asymptotic_λ = 0.196774680497
+
+        #first we will find the l such that l/n is closest to the upper_bound
+        l = floor(n*asymptotic_λ)
+
+        #now we want to check if moving towards 0 decreases or increases the value of the function
+
+        if  self._time_complexity_((l-1)/n) <= self._time_complexity_(l / n): #i.e. decreses towards 0
+
+            while l>=0:
+                λ_ = l / n
+                complexity = self._time_complexity_(λ_)
+                l -= 1
+
+                if complexity < min_complexity:
+                    min_complexity = complexity
+                    optimal_λ = λ_
+
+                else:
+                    self._λ = optimal_λ
+                    return self._λ
+            
+        else: #i.e. increases towards 0, this means decreases towards 1
+            while l<min(m,n):
+                λ_ = l / n
+                complexity = self._time_complexity_(λ_)
+                l += 1
+
+                if complexity < min_complexity:
+                    min_complexity = complexity
+                    optimal_λ = λ_
+
+                else:
+                    self._λ = optimal_λ
+                    return self._λ
+
+        self._λ = optimal_λ
+        return self._λ
+```
