@@ -15,7 +15,7 @@ The new method _T was created analyzing the pseudo-code (and the one which was i
         sumbin_B = sum_of_binomial_coefficients(n - l, l + 4)
         T += 2 ** (n-l)  # Line 5, initialize array of size 2^{n-l}
         # Lines 6-12: Enters for loop, so each summand is multiplied by s
-        T += s * (l+2) * m * sumbin_n_2 # Line 7, generate alphas, multiply and add coeficients
+        T += s * (l+2) * m * sumbin_n_2 # Line 7, generate alphas, multiply and add coefficients
         # Line 8: No need to fill with zeros V at this point
         # Line 9-10: enters a for loop, so each term inside is multiplied by sumbin_B
         # Line 10:        
@@ -31,7 +31,10 @@ The new method _T was created analyzing the pseudo-code (and the one which was i
 ```
 
 # Optimal λ
-The next graph shows the values of logaritmic time complexity with different values of lambdas for 20, 40, 60, 80,..., 1000 variables. This bahaviour is also seen for the intermediate values of the number of variables.
+
+## Early abort
+
+The next graph shows the values of logarithmic time complexity with different values of lambdas for 20, 40, 60, 80,..., 1000 variables. This behavior is also seen for the intermediate values of the number of variables.
 
 From this graph we can see two important facts:
   1. We observe that for values of lambda near 1 the time complexity grows rapidly, this means that computing these values is much more slower than for values near   0.
@@ -60,7 +63,7 @@ Checking the old code for computing the optimal lambda
         return self._λ
 ```
 
-We can see the problem with this naïve approach of cheacking all possible lambdas in the interval from the first observation we made. Therefore thanks to the unimodality of the function we can implement an early abort for the method. The moment the function starts increasing we know we already passed the optimal lambda and we return this optimal value.
+We can see the problem with this naïve approach of checking all possible lambdas in the interval from the first observation we made. Therefore thanks to the unimodality of the function we can implement an early abort for the method. The moment the function starts increasing we know we already passed the optimal lambda and we return this optimal value.
 
 ```Python
     def λ_early_abort(self):
@@ -100,15 +103,17 @@ Let us see how this two methods compare in performance
 |900|7.0|301.5| x43.1
 |1000|11.1|452.7| x40,8
 
-The early abort implementation makes an optimization of about x43. And they, in fact, provide the same lambda (tested up to 530 variables) as we can see in the next graph:
+The early abort implementation makes an optimization of about x43. And they, in fact, provide the same lambda (tested up to 620 variables) as we can see in the next graph:
 
-![early aborts vs no early abort](https://github.com/aangulog/Crypto-TII-Probabilistic-algorithms-changes/assets/101427877/b4e1fe9b-3812-48a6-b7a9-a65d11b57cd8)
+![early aborts vs no early abort](https://github.com/aangulog/Crypto-TII-Probabilistic-algorithms-changes/assets/101427877/39877f84-03f8-4c7e-887d-9fb21a3298b7)
 
 Thanks to the unimodality of the function, early abort gives us an optimal upper bound of stop for searching the optimal lambda. Our problem now can be restated as: How can we find this upper limit as quickly as possible?
 
-Remember that we are starting this search of lambda at $\dfrac{1}{n}$, where $n$ is the number of variables, we would like to find a lower bound of searching, letting us start further away from 0.
+## Starting at the asymptotic λ
 
-[[BKW19](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ICALP.2019.26)] demonstrated that the function $T(n,m)$ (for us the method _T) is exponentially asymptotic to $2^{0.803225n}$, this value is achieved when $\lambda =  0.196774680497$, we can start from this value and work towards 0, insted of starting from 0 and works toward the optimimum. But why are we able to do this? We are in fact studying the optimization of the __time_complexity_ method.
+Remember that we are starting this search of lambda at $\dfrac{1}{n}$, where $n$ is the number of variables, we would like to searching searching at a furhter away value from 0 saving us calculations.
+
+[[BKW19](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ICALP.2019.26)] demonstrated that the function $T(n,m)$ (for us the method _T) is exponentially asymptotic to $2^{0.803225n}$, this value is achieved when $\lambda =  0.196774680497$, we can start from this value and work towards 0, instead of starting from 0 and works toward the optimum. But why are we able to do this? We are in fact studying the optimization of the __time_complexity_ method.
 
 ```Python
 def _time_complexity_(self, λ):
@@ -120,7 +125,7 @@ def _time_complexity_(self, λ):
 ```
 
 This method relies in calculating the value of $T(n,m)$ for all $n\in[1,2,...,n-1]$, and the exponential nature of _T tells us that the higher values of $n$ will be the ones that impact the most this method, therefore is reasonable to assume that a $\lambda$ that optimizes the values of $T(n,m)$ for higher n's is also going to be the $\lambda$ that optimizes __time_complexity_.
-Our strategy will be: insted of starting at $\dfrac{1}{n}$, we will start at a $\dfrac{l}{n}$ that is closest to the optimal value of lambda. Then we will check if we are in the increasing or decreasing part of the function. If we are in the increasing part we will start working towards 0, and thanks to the unimodality find the minimum. In the other hand if we are in the decreasing part our current code of early abort will work fine.
+Our strategy will be: instead of starting at $\dfrac{1}{n}$, we will start at a $\dfrac{l}{n}$ that is closest to the asymptotic value of lambda. Then we will check if we are in the increasing or decreasing part of the function. If we are in the increasing part we will start working towards 0, and thanks to the unimodality find the minimum. On the other hand if we are in the decreasing part our current code of early abort will work fine.
 
 ```Python
 
@@ -136,7 +141,7 @@ Our strategy will be: insted of starting at $\dfrac{1}{n}$, we will start at a $
 
         #now we want to check if moving towards 0 decreases or increases the value of the function
 
-        if  self._time_complexity_((l-1)/n) <= self._time_complexity_(l / n): #i.e. decreses towards 0
+        if  self._time_complexity_((l-1)/n) <= self._time_complexity_(l / n): #i.e. decreases towards 0
 
             while l>=0:
                 λ_ = l / n
@@ -170,11 +175,11 @@ Our strategy will be: insted of starting at $\dfrac{1}{n}$, we will start at a $
 ```
 ![inverse_early_abort](https://github.com/aangulog/Crypto-TII-Probabilistic-algorithms-changes/assets/101427877/ec3d4c17-7be8-4365-829d-b43ddd27e001)
 
-We can see how for large values of $n$ this implementation cuts out a lot of unnecesary calculations, since our value is much closer to the opitmal lambda than to 0. Just to be safe we still calculate if our optimal lambda is above or below this line. But the long term behaviour hints us that this value is always lower.
+We can see how for large values of $n$ this implementation cuts out a lot of unnecessary calculations, since our value is much closer to the optimal lambda than to 0. Just to be safe we still calculate if our optimal lambda is above or below this line. But the long term behaviour hints us that this value is always lower.
 
 Finally, let us see how this new implementation changes the calculation time.
 
-|  Number of variables   | Early abort starting from the asymptotic lambda (seconds ) | Early abort starting form 0 (seconds) | 
+|  Number of variables   | Early abort starting at the asymptotic lambda (seconds ) | Early abort starting at 0 (seconds) | 
 |------------------------| --------------------- | -------------------------|
 |600|0.5|1.4| x2.8
 |800|1.1|4.4| x4
@@ -183,3 +188,9 @@ Finally, let us see how this new implementation changes the calculation time.
 |1500|12.4|71.4| x5.7
 |2000|36.9|266.8| x7.2
 |3000|178.1|1725.1| x9.6
+
+This new implementation performs better as the number of variables increases, already reaching x10 at 3000 variables.
+
+# Conclusions
+
+We implemented a better to understand code for the time complexity of the parity-counting problem (_T), also fixing the parenthesis problem that the original code had. And we also saw that with little changes the code for calculating the optimal lambda can achieve an improvement greater than x200: Making use of the unimodal nature of the function an early abort and also starting at the asymptotic lambda instead of 0 to search for the optimal lambda.
