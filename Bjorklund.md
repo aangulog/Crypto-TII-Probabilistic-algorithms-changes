@@ -168,3 +168,6 @@ Our strategy will be: insted of starting at $\dfrac{1}{n}$, we will start at a $
         self._λ = optimal_λ
         return self._λ
 ```
+![inverse_early_abort](https://github.com/aangulog/Crypto-TII-Probabilistic-algorithms-changes/assets/101427877/ec3d4c17-7be8-4365-829d-b43ddd27e001)
+
+We can see how for large values of $n$ this implementation cuts out a lot of unnecesary calculations, since our value is much closer to the opitmal lambda than to 0. Just to be safe we still calculate if our optimal lambda is above or below this line. But the long term behaviour hints us that this value is always lower.
