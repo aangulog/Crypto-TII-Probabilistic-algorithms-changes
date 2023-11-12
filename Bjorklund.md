@@ -194,3 +194,5 @@ This new implementation performs better as the number of variables increases, al
 # Conclusions
 
 We implemented a better to understand code for the time complexity of the parity-counting problem (_T), also fixing the parenthesis problem that the original code had. And we also saw that with little changes the code for calculating the optimal lambda can achieve an improvement greater than x200: Making use of the unimodal nature of the function an early abort and also starting at the asymptotic lambda instead of 0 to search for the optimal lambda.
+
+I will also upload a list of calculated lambdas with these methods as txt
