@@ -103,10 +103,9 @@ Let us see how this two methods compare in performance
 |900|7.0|301.5| x43.1
 |1000|11.1|452.7| x40,8
 
-The early abort implementation makes an optimization of about x43. And they, in fact, provide the same lambda (tested up to 980 variables) as we can see in the next graph:
+The early abort implementation makes an optimization of about x43. And they, in fact, provide the same lambda (tested up to 1000 variables) as we can see in the next graph:
 
-![early aborts vs no early abort](https://github.com/aangulog/Crypto-TII-Probabilistic-algorithms-changes/assets/101427877/d1e2783f-f8b3-4648-8873-c1584631102d)
-
+![early aborts vs no early abort](https://github.com/aangulog/Crypto-TII-Probabilistic-algorithms-changes/assets/101427877/a90a4deb-de3f-4b34-80d6-470142bc4130)
 
 Thanks to the unimodality of the function, early abort gives us an optimal upper bound of stop for searching the optimal lambda. Our problem now can be restated as: How can we find this upper limit as quickly as possible?
 
