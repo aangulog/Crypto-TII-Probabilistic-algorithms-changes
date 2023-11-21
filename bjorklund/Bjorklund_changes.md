@@ -1,6 +1,8 @@
 # _T 
 
-The new method _T was created analyzing the pseudo-code (and the one which was implemented in the Björklund code) of [[BBSV22](https://eprint.iacr.org/2021/913.pdf)] and contrasted with the original paper [[BKW19](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ICALP.2019.26)] they coincide in big $O$ notation. Our new _T method is more precise as the hidden terms of the big $O$ notation are at most $O(1)$.
+We report on some changes to [(https://github.com/Crypto-TII/multivariate_quadratic_estimator/blob/master/src/mpkc/algorithms/bjorklund.py)]. The goals are to get a more accurate complexity, to improve readability, and to speed up the computation.
+
+Below is a new method _T that computes the time complexity of the core computation of BKW's algorithm. It was created analyzing the pseudo-code (and the one which was implemented in the Björklund code) of [[BBSV22](https://eprint.iacr.org/2021/913.pdf)] and contrasted with the original paper [[BKW19](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ICALP.2019.26)]. They all coincide in big $O$ notation. Our new _T method is more precise as the hidden terms of the big $O$ notation are at most $O(1)$. Also, we specify in detail where each term of the complexity comes from.
 
 ```Python
     @staticmethod
@@ -111,7 +113,7 @@ Thanks to the unimodality of the function, early abort gives us an optimal upper
 
 ## Starting at the asymptotic λ
 
-Remember that we are starting this search of lambda at $\dfrac{1}{n}$, where $n$ is the number of variables, we would like to searching searching at a furhter away value from 0 saving us calculations.
+Remember that we are starting this search of lambda at $\dfrac{1}{n}$, where $n$ is the number of variables. We would like to search values of lambda that are furhter away from 0, saving us calculations.
 
 [[BKW19](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ICALP.2019.26)] demonstrated that the function $T(n,m)$ (for us the method _T) is exponentially asymptotic to $2^{0.803225n}$, this value is achieved when $\lambda =  0.196774680497$, we can start from this value and work towards 0, instead of starting from 0 and works toward the optimum. But why are we able to do this? We are in fact studying the optimization of the __time_complexity_ method.
 
@@ -124,7 +126,7 @@ def _time_complexity_(self, λ):
     return 8*k * n * sum([Bjorklund._T(n - i, m + k + 2, λ) for i in range(1, n)])
 ```
 
-This method relies in calculating the value of $T(n,m)$ for all $n\in[1,2,...,n-1]$, and the exponential nature of _T tells us that the higher values of $n$ will be the ones that impact the most this method, therefore is reasonable to assume that a $\lambda$ that optimizes the values of $T(n,m)$ for higher n's is also going to be the $\lambda$ that optimizes __time_complexity_.
+This method relies in calculating the value of $T(n,m)$ for all $n\in[1,2,...,n-1]$, and the exponential nature of _T tells us that the higher values of $n$ will be the ones that impact the most this method, therefore it is reasonable to assume that a $\lambda$ that optimizes the values of $T(n,m)$ for higher n's is also going to be the $\lambda$ that optimizes __time_complexity_.
 Our strategy will be: instead of starting at $\dfrac{1}{n}$, we will start at a $\dfrac{l}{n}$ that is closest to the asymptotic value of lambda. Then we will check if we are in the increasing or decreasing part of the function. If we are in the increasing part we will start working towards 0, and thanks to the unimodality find the minimum. On the other hand if we are in the decreasing part our current code of early abort will work fine.
 
 ```Python
@@ -193,6 +195,6 @@ This new implementation performs better as the number of variables increases, al
 
 # Conclusions
 
-We implemented a better to understand code for the time complexity of the parity-counting problem (_T), also fixing the parenthesis problem that the original code had. And we also saw that with little changes the code for calculating the optimal lambda can achieve an improvement greater than x200: Making use of the unimodal nature of the function an early abort and also starting at the asymptotic lambda instead of 0 to search for the optimal lambda.
+We implemented an easier to understand code for the time complexity of the parity-counting problem (_T), also fixing the parenthesis problem that the original code had. And we also saw that with some small changes, the code for calculating the optimal lambda can achieve an improvement greater than x200: Making use of the unimodal nature of the function an early abort and also starting at the asymptotic lambda instead of 0 to search for the optimal lambda.
 
 I will also upload a list of calculated lambdas with these methods as txt
